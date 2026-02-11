@@ -118,6 +118,7 @@ async function processModelsResponse(parsedResponse: any, env: Env): Promise<Map
   const logger = new Logger(env);
 
   if (!parsedResponse?.models) {
+    logger.error("Invalid response structure from Raycast API", { response: JSON.stringify(parsedResponse).slice(0, 500) });
     throw new Error("Invalid response structure from Raycast API");
   }
 
@@ -171,7 +172,7 @@ export async function createStreamingChatCompletion(
   if (!response.ok) {
     const errorText = await response.text();
     logger.error(`Raycast API error: ${response.status} ${errorText}`);
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(`Raycast API error: ${response.status} - ${errorText}`);
   }
 
   if (!response.body) {
@@ -287,7 +288,7 @@ export function parseSSEResponse(responseText: string, logger?: Logger): { text:
           }
         }
       } catch (e) {
-        if (logger) logger.warn("Failed to parse SSE line", { line, error: e });
+        if (logger) logger.error("Failed to parse SSE line", { line: line.slice(0, 200), error: String(e) });
       }
     }
   }
@@ -311,7 +312,7 @@ export async function createNonStreamingChatCompletion(
   if (!response.ok) {
     const errorText = await response.text();
     logger.error(`Raycast API error: ${response.status} ${errorText}`);
-    throw new Error(`HTTP error! status: ${response.status}`);
+    throw new Error(`Raycast API error: ${response.status} - ${errorText}`);
   }
 
   const responseText = await response.text();
@@ -463,7 +464,7 @@ export async function convertMessages(
               const attachmentId = await uploadImage(env, item.image_url.url, threadId);
               attachments.push({ id: attachmentId, type: "file" });
             } catch (error) {
-              logger.warn("Failed to upload image");
+              logger.error("Failed to upload image", { error: String(error), imageUrl: item.image_url.url });
             }
           }
         }
