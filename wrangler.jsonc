@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "raycast2api",
+	"name": "raycast-relay",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-03-21",
 	"compatibility_flags": [
